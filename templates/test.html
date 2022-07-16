@@ -1,0 +1,34 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js" integrity="sha512-Wt1bJGtlnMtGP0dqNFH1xlkLBNpEodaiQ8ZN5JLA5wpc1sUlk/O5uuOMNgvzddzkpvZ9GLyYNa8w2s7rqiTk5Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!--chart section-->
+    <div>
+        <canvas id="myChart"></canvas>
+    </div>
+
+
+
+<!--Chart managment-->
+<script>
+    var ctx = document.getElementById("myChart").getContext("2d");
+    var lineChart = new Chart(ctx, {
+        type:"line",
+        data: {
+            labels: {{ indicator_dates | safe }},
+            datasets: [
+                {
+                    label: "Indicator",
+                    data: {{ indicator_values | safe }},
+                    fill: false,
+                    lineTension: 0.2
+                }
+            ]
+        },
+        options: {
+            parsing: true
+        }
+    });
+</script>
+
+{% endblock %}

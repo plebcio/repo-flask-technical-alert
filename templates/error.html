@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+<!-- navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+        <div class="container px-4 px-lg-5">
+            <a class="navbar-brand" href="#page-top">Start TA</a>
+            <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                Menu
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Log out</a></li>
+                    <!-- TODO in log in show logout  -->
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- main section -->
+    <section class="about-section text-center" id="about">
+        <div class="bg-light rounded p-4 mb-5 mt-2 mx-3">
+            <div class="row gx-4 gx-lg-5 justify-content-center">
+                <p class="lead mb-3">There seems to be an error, please refill the form correctly</p>
+                <div class="p-3 mb-4" id="btn_row">
+                    <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Click to retake the form">
+                        <a class="btn btn-primary" href="{{ url_for('tech') }}">Refill the form</a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+{% include 'contact.html' %}
+
+{% endblock %}

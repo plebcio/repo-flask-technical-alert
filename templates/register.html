@@ -1,0 +1,112 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+<!-- Register Page  -->
+    <section class="about-section text-center" id="about">
+        <div class="container px-4 px-lg-5">
+            <div class="row gx-4 gx-lg-5 justify-content-center">
+                <div class="col-lg-8">
+                    <h1 class="text-white mb-4">Register</h1>
+                    <p class="text-white-50">
+                        Register to enjoy all the functionalty of Technical Alert
+                    </p>
+                </div>
+            </div>
+
+
+            <!-- Signup section  -->
+            <div class="bg-light rounded p-4 mb-5 mt-2 mx-1" id="sighup">
+                <div class="row gx-4 gx-lg-5 justify-content-center">
+                    <form method="post">
+                        <div class="form-group">
+                            {% if error %}
+                                <h3 class="form-text text-danger lead" > {{error}} </h3>
+                            {% endif %}
+                            <label for="exampleInputEmail1">Email address</label>
+                            <input type="email" class="form-control" id="i1" name = "email" aria-describedby="emailHelp" placeholder="Enter email">
+                            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Password</label>
+                            <input type="password" name="password" class="form-control" id="i2" placeholder="Password">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="exampleInputPassword1">Confirm Password</label>
+                            <input type="password" name="confirmation" class="form-control" id="i3" placeholder="Confirm Password">
+                            <small id="mess" class="form-text text-danger"></small>
+                        </div>
+                        <button type="submit" id="btn" class="btn btn-primary">Submit</button>
+                        <br>
+                        <small>Already have an account? Click <a href="{{url_for('login')}}">here</a> to log in!</small>
+                    </form>
+                </div>
+            </div>
+
+
+            <!-- logo -->
+
+            <img class="img-fluid resize" src="/static/assets/img/wallstreetbull.png" alt="logo" />
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            //check if passwords dont match displays a warning
+            document.getElementById("i3").addEventListener("keyup", function() {
+                if ( document.getElementById("i3").value != document.getElementById("i2").value) {
+                    document.getElementById("mess").innerHTML = "Passwords don't match";
+               }
+               else {
+                   document.getElementById("mess").innerHTML = "";
+               }
+            });
+            // checking for change in both password fields
+            document.getElementById("i2").addEventListener("keyup", function() {
+                if ( document.getElementById("i3").value != document.getElementById("i2").value) {
+                    document.getElementById("mess").innerHTML = "Passwords don't match";
+               }
+               else {
+                   document.getElementById("mess").innerHTML = "";
+               }
+            });
+            //checks for special characters
+            document.getElementById("i2").addEventListener("keyup", function() {
+                if (isAlphaNumeric(document.getElementById("i2").value))
+                {
+                    document.getElementById("mess").innerHTML = "Password must contain special characters";
+                }
+                else
+                {
+                    document.getElementById("mess").innerHTML = "";
+                }
+            });
+            document.getElementById("sighup").addEventListener("keyup", function() {
+                if (document.getElementById("mess").textContent == "")
+                {
+                    document.getElementById("btn").disabled = false;
+                }
+                else
+                {
+                    document.getElementById("btn").disabled = true;
+                }
+            });
+        });
+
+
+        function isAlphaNumeric(str) {
+            var code, i, len;
+
+        for (i = 0, len = str.length; i < len; i++) {
+            code = str.charCodeAt(i);
+            if (!(code > 47 && code < 58) && // numeric (0-9)
+                !(code > 64 && code < 91) && // upper alpha (A-Z)
+                !(code > 96 && code < 123)) { // lower alpha (a-z)
+                return false;
+            }
+            }
+            return true;
+        }
+    </script>
+
+{% endblock %}

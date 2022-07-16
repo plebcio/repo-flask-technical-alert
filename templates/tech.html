@@ -1,0 +1,269 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<!-- navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+        <div class="container px-4 px-lg-5">
+            <a class="navbar-brand" href="#page-top">Start TA</a>
+            <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                Menu
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Log out</a></li>
+                    <!-- TODO in log in show logout  -->
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="about-section text-center" id="about">
+        <!-- Introduction-->
+        <div class="container px-4 px-lg-5">
+            <div class="row gx-4 gx-lg-5 justify-content-center">
+                <div class="col-lg-8">
+                    <h2 class="text-white mb-4">Let's get started</h2>
+                    <p class="text-white-50">
+                        Below there is a simple form in with you cen choose many any of hour many technical indicators and configure them to your liking.
+                        Choose on what kind of change in the indicator, or price should trigger a notification.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Main Section  -->
+            <div class="bg-light rounded p-4 mb-5 mt-2 mx-3">
+                <div class="row gx-4 gx-lg-5 justify-content-center">
+                    {% if error %}
+                        <h3 class="text-danger display-6" > {{error}} </h3>
+                    {% endif %}
+                    <div class="p-3 mb-4" id="btn_row">
+                        <h3>How to use it</h3>
+                        <p class="lead mb-3">Strat by choosing what asset class you're interested in</p>
+                        <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Coming soon">
+                            <button class="btn btn-primary" id="crypto_btn" style="pointer-events: none;" type="button" disabled>Cryptocurrencies</button>
+                        </span>
+                        <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Coming soon">
+                            <button class="btn btn-primary" id="forex_btn" style="pointer-events: none;" type="button" disabled>Forex</button>
+                        </span>
+                        <span class="d-inline-block" id="stocks_btn">
+                            <button class="btn btn-primary"  type="button">Stocks</button>
+                        </span>
+                    </div>
+                    <!-- Stock section-->
+                    <div id="stocks" class="container mb-4" style="display:none">
+                        <form method="POST">
+                            <h2>Choose one or more of the provided indicators</h2>
+                            <small>Custom indicators comming soon!</small>
+                            <hr>
+                            <div class="form-group p-3 m-3">
+                                <h3>First, input a ticker symbol!</h3>
+                                <input class="form-control" id="ticker" name="ticker" placeholder="Ticker Symbol">
+                            </div>
+                            <section id="select">
+                                <p>Firstly, search for an indicator, set it's lenght. Next choose a condition, above or below, which will trigger the notification.
+                                Next choose what the indicator value will be compared to. This can be another indicator, like comparing to moving averages, a constant value, or the price of the asset itself.
+                                </p>
+                                <div class="form-group">
+                                    <input class="form-control" id="indicator_1" name="indicator_1" placeholder="First indicator (eg. SMA, EMA, RSI)">
+                                </div>
+                                <div>
+                                    <p class="p-1 m-1">Choose a time period</p>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="time-period" id="period-daily" value="Daily" >
+                                        <label class="form-check-label" for="time-period">
+                                        Daily
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="time-period" id="period-weekly" value="Weekly">
+                                        <label class="form-check-label" for="time-period">
+                                        Weekly
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="time-period" id="period-monthly" value="Monthly">
+                                        <label class="form-check-label" for="time-period">
+                                        Monthly
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group p-3 m-3">
+                                    <input class="form-control" id="indicator_1_len" name="indicator_1_len" placeholder="First indicator range (in the period chosen above)">
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="bigger-smaller" id="bigger" value="bigger">
+                                        <label class="form-check-label" for="bigger-smaller">
+                                        Is above
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="bigger-smaller" id="smaller" value="smaller">
+                                        <label class="form-check-label" for="bigger-smaller">
+                                        Is below
+                                        </label>
+                                    </div>
+                                </div>
+                                <div id="extra_choice">
+                                    <p class="p-1 m-1">Now choose to what the indicator will be compared</p>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="compare" id="price" value="price">
+                                        <label class="form-check-label" for="compare">
+                                        Price
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="compare" id="second-indicator" value="second-indicator">
+                                        <label class="form-check-label" for="compare">
+                                        Another indicator
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="compare" id="constant" value="constant">
+                                        <label class="form-check-label" for="compare">
+                                        A constant value
+                                        </label>
+                                    </div>
+                                </div>
+                                <!--extra inputs -->
+                                <div id="extra_inputs">
+                                    <div class="form-group p-3 m-3">
+                                        <input class="form-control" id="indicator_2" placeholder="Second indicator" name="indicator_2" disabled>
+                                    </div>
+                                    <div class="form-group p-3 m-3">
+                                        <input class="form-control" id="indicator_2_len" name="indicator_2_len" placeholder="Second indicator range (in the period chosen above for indocator 1)" disabled>
+                                    </div>
+                                    <div class="form-group p-3 m-3">
+                                        <input class="form-control" id="constant_value" placeholder="The value" name="constant_value" disabled>
+                                    </div>
+                                </div>
+                            </section>
+                            <button class="btn btn-primary" type="submit">Submit</button>
+                        </form>
+                    </div>
+                    <!--chart section-->
+                    <div id="chart_div">
+                        {% if chart %}
+                            <div class="container-fluid" style="height: 600px">
+                                <canvas id="myChart"></canvas>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- logo -->
+
+            <img class="img-fluid resize" src="/static/assets/img/wallstreetbull.png" alt="logo" />
+        </div>
+    </section>
+
+    <!--Page functioanlity-->
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+        $(document).ready(function(){
+            // display the correct form
+            document.getElementById("stocks_btn").addEventListener("click", function() {
+                document.getElementById("chart_div").style.display = "none";
+                document.getElementById("stocks").style.display = "block";
+            });
+            document.getElementById("extra_choice").addEventListener("click", function() {
+                if($('#second-indicator').is(':checked'))
+                {
+                    $("#indicator_2").prop("disabled", false);
+                    $("#indicator_2_len").prop("disabled", false);
+                }
+                else
+                {
+                     $("#indicator_2").prop("disabled", true);
+                    $("#indicator_2_len").prop("disabled", true);
+                }
+
+                if($('#constant').is(':checked'))
+                {
+                    $("#constant_value").prop("disabled", false);
+                }
+                else
+                {
+                    $("#constant_value").prop("disabled", true);
+                }
+            });
+        });
+    </script>
+
+    <!--Chart managment-->
+    <script>
+        var ctx = document.getElementById("myChart").getContext("2d");
+        var lineChart = new Chart(ctx, {
+            type:"line",
+            data: {
+                labels: {{ indicator_dates | safe }},
+                datasets: [
+                    {% if mode == "price" %}
+                        {
+                            label: "Price: {{ticker}}",
+                            data: {{ price_values | safe }},
+                            borderColor: 'rgb(45, 181, 86)',
+                            lineTension: 0.1
+                        },
+                    {% elif mode == "constant_value" %}
+                        {
+                        label: "Constant value",
+                                data: new Array({{ limit }}).fill({{ constant_value }}),
+                                borderColor: 'rgb(40, 180, 212)',
+                                lineTension: 0.1
+                        },
+                    // mode is second indicator
+                    {% else %}
+                        {
+                            label: '{{second_indicator}}: {{ticker}}',
+                            data: {{ second_indicator_values | safe }},
+                            borderColor: 'rgb(217, 33, 100)',
+                            lineTension: 0.1
+                        },
+                    {% endif %}
+                    {
+                        label: '{{indicator}}: {{ticker}}',
+                        data: {{ indicator_values | safe }},
+                        borderColor: 'rgb(235, 219, 52)',
+                        lineTension: 0.1
+                    }
+
+                ]
+            },
+            options: {
+                scales:{
+                    x:{
+                        type: "time",
+                        time: {
+                            unit: 'day'
+                        }
+                    },
+                    y:{
+                        ticks: {
+                            // Include a dollar sign in the ticks
+                            callback: function(value, index, values) {
+                                return '$' + value;
+                            }
+                        }
+                    }
+                },
+                elements: {
+                    point:{
+                        radius: 0
+                    }
+                }
+            }
+        });
+    </script>
+
+
+{% include 'contact.html' %}
+
+{% endblock %}
