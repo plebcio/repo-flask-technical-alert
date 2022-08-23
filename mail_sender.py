@@ -1,26 +1,26 @@
 from flask import Flask
 import requests
-from flask_mail import Mail, Message
 from cs50 import SQL
 import time, datetime
 import functools
 from enum import Enum
+from email.message import EmailMessage
+import ssl
+import smtplib
 
 # local variables
 from env_vars import MY_MAIL, MAIL_PASS, DB_NAME, API_KEY
 
 app = Flask(__name__)
-mail = Mail(app)  # instantiate the mail class
 db = SQL(DB_NAME)
 
 # configuration of mail
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = MY_MAIL
-app.config['MAIL_PASSWORD'] = MAIL_PASS
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
-mail = Mail(app)
+app.config['MAIL_SERVER']='smtp.mailtrap.io'
+app.config['MAIL_PORT'] = 2525
+app.config['MAIL_USERNAME'] = '97e041d5e367c7'
+app.config['MAIL_PASSWORD'] = 'cfaf5b99f8bafb'
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
 
 
 class MyError(Enum):
@@ -28,22 +28,8 @@ class MyError(Enum):
     incorrect_ticker = 2
     premium_endpoint = 3
 
-CACHE_SIZE = 50
 
-"""
-TODO MAIL STUFF 
-# message object mapped to a particular URL ‘/’
-@app.route("/")
-def index():
-    msg = Message(
-        'Hello',
-        sender='yourId@gmail.com',
-        recipients=['receiver’sid@gmail.com']
-    )
-    msg.body = 'Hello Flask message sent from Flask-Mail'
-    mail.send(msg)
-    return 'Sent'
-"""
+CACHE_SIZE = 50
 
 
 def notify():
@@ -66,9 +52,60 @@ def notify():
     # notification in the format
     # (user id, order id, val of first indicator, val of second indicator)
     for alert in notifications:
-        # get user email
+        # get user email, and necessary order data
         user_email = db.execute("SELECT email FROM users WHERE id = :user_id", user_id=alert[0])
+        user_order = db.execute("SELECT script FROM orders WHERE id = :order_id", order_id=alert[1])
+        ticker = db.execute("SELECT ticker from tickers WHERE id = (SELECT ticker_id from orders where id = :order_id",
+                            order_id = alert[1])
         # TODO send the message
+        subject = "Your stock indicator has been triggered"
+
+        # constructing the body of the email
+        body = f"""
+        A notification you set up with Technical Alert has been triggered\n
+            For ticker: {ticker}
+            The {"indicator_1_len"} """
+
+        time_period = ""
+        if user_order["time_period"] == "Daily":
+            time_period += "Day"
+        elif user_order["time_period"] == "Weekly":
+            time_period += "Week"
+        elif user_order["time_period"] == "Monthly":
+            time_period += "Month"
+
+        body += time_period
+        body += f" {user_order['indicator_1']} (${alert[2]}) is now "
+
+        if user_order["bigger-smaller"] == "bigger":
+            body += " above"
+        elif user_order["bigger-smaller"] == "smaller":
+            body += "below"
+
+        if user_order["compare"] == "price":
+            body += f" the the price of {ticker} ({alert[3]})"
+        elif user_order["compare"] == "constant_value":
+            body += f" the trigger value of ${alert[3]}"
+        elif user_order["compare"] == "second-indicator":
+            body += f" the {user_order['indicator_2_len']}"
+            body += time_period
+            body += f" {user_order['indicator_2']} (${alert[3]})"
+
+        body += "\n\nThank you for using Technical Alert for your stock notifications"
+        body += "This email was automatically generated"
+
+        # prepare the email
+        em = EmailMessage()
+        em["From"] = MY_MAIL
+        em["To"] = user_email
+        em["Subject"] = subject
+        em.set_content(body)
+
+        context = ssl.create_default_context()
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
+            smtp.login(MY_MAIL, MAIL_PASS)
+            smtp.sendmail(MY_MAIL, user_email, em.as_string())
 
     # TODO maybe do the reties
 
@@ -79,6 +116,7 @@ def check_orders():
     # format - tuple (user id, order id, val of first indicator, val of second indicator)
     notifications = []
 
+    # TODO change limit so it doesnt stop at one order
     orders_list = db.execute("SELECT orders.id, tickers.ticker, orders.user_id, orders.script FROM orders "
                              "JOIN tickers ON orders.ticker_id = tickers.id "
                              "LIMIT 4")
